@@ -2,14 +2,16 @@ import pandas as pd
 
 def clean_matches(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Returns a cleaned matches dataframe sorted chronologically,
-    and using only finished matches. (status: FT)
+    Returns a cleaned matches DataFrame sorted chronologically,
+    using only finished matches (status: FT).
+
+    Returns a copy with UTC dates and a reset index.
 
     Args:
-        df (pd.DataFrame): Raw matches dataframe.
+        df (pd.DataFrame): Raw matches DataFrame.
 
     Returns:
-        df (pd.DataFrame): Cleaned matches dataframe.
+        pd.DataFrame: Cleaned matches DataFrame.
     """
     cleaned_df = df.copy()
 

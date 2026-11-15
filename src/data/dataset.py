@@ -1,8 +1,11 @@
 from pathlib import Path
 import numpy as np
 
-from data.processing import RAW_DATA_DIR
-from src.data.processing import process_matches, save_processed_data
+from src.data.processing import (
+    RAW_DATA_DIR,
+    process_matches,
+    save_processed_data,
+)
 from src.features.Goals import GoalCalculator
 from src.features.elo import EloCalculator
 from src.features.form import FormCalculator
@@ -29,11 +32,14 @@ def build_dataset(
 
     Loads finished matches, adds pre-match features, creates the match-outcome
     target, removes post-match data that would leak the result, drops incomplete
-    feature rows, and saves the training dataset.
+    feature rows, and saves the training dataset. Also saves processed match data.
+    Target values are 0 for a draw, 1 for a home win, and 2 for an away win.
 
     Args:
-        raw_data_dir: Directory containing raw match CSV files.
-        dataset_data_dir: Directory where the training dataset is saved.
+        raw_data_dir (Path, optional): Directory containing raw match CSV files.
+            Defaults to data/raw.
+        dataset_data_dir (Path, optional): Output directory for the training dataset.
+            Defaults to data/dataset.
 
     Returns:
         The path of the saved training-dataset CSV file.

@@ -16,6 +16,9 @@ def process_matches(raw_data_dir: Path = RAW_DATA_DIR) -> pd.DataFrame:
     """
     Loads, validates, and cleans raw match data.
 
+    Args:
+        raw_data_dir (Path, optional): Directory containing raw match data. Defaults to data/raw.
+
     Returns:
         A validated DataFrame containing finished matches in chronological order.
 
@@ -40,10 +43,12 @@ def save_processed_data(
     """
     Saves processed match data to a CSV file.
 
+    Creates the directory if needed and overwrites an existing file.
+
     Args:
-        df: Processed match data to save.
-        processed_data_dir: Directory where the processed data is saved.
-        file_name: Name of the processed data file.
+        df (pd.DataFrame): Processed match data to save.
+        processed_data_dir (Path, optional): Output directory. Defaults to data/processed.
+        file_name (str, optional): Name of the processed data file.
 
     Returns:
         The path of the saved CSV file.

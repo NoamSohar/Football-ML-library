@@ -7,14 +7,14 @@ RAW_DATA_DIR = project_root / "data" / "raw"
 
 def load_season(file_name: str, raw_data_dir: Path = RAW_DATA_DIR) -> pd.DataFrame:
     """
-    Loads one specific season raw data from it's the raw data file.
+    Loads raw match data for one season from a CSV file.
 
     Args:
         file_name (str): Name of the CSV file to read from.
-        raw_data_dir (Path, optional): Path to the directory where the raw data is stored.
+        raw_data_dir (Path, optional): Directory containing raw data. Defaults to data/raw.
 
     Returns:
-        pd.DataFrame: a pandas Dataframe containing the raw data.
+        pd.DataFrame: Raw match data.
 
     Raises:
         FileNotFoundError: If the requested CSV file does not exist.
@@ -29,13 +29,13 @@ def load_season(file_name: str, raw_data_dir: Path = RAW_DATA_DIR) -> pd.DataFra
 
 def load_all_seasons(raw_data_dir: Path = RAW_DATA_DIR) -> pd.DataFrame:
     """
-    Loads and combines every season's raw data into a single pd dataframe.
+    Loads and combines every season's raw data into a single DataFrame.
 
     Args:
-        raw_data_dir (Path, optional): Path to the directory where the raw data is stored.
+        raw_data_dir (Path, optional): Directory containing raw data. Defaults to data/raw.
 
     Returns:
-        pd.DataFrame: a pandas Dataframe containing the combined seasons raw data.
+        pd.DataFrame: Combined raw match data from all seasons.
 
     Raises:
         FileNotFoundError: If the directory is missing or contains no CSV files.
