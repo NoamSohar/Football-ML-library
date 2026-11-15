@@ -9,12 +9,27 @@ from src.model.train import run_training
 
 
 def print_metrics(title, metrics):
+    """
+    Prints accuracy and the confusion matrix.
+
+    Args:
+        title (str): Heading shown above the metrics.
+        metrics (dict): Accuracy and confusion matrix to print.
+    """
+
     print(f"{title} metrics")
     print(f"  Accuracy: {metrics['accuracy']:.3f}")
     print(f"  Confusion matrix: {metrics['confusion_matrix']}")
 
 
 def train(args):
+    """
+    Trains, calibrates, and saves a model, then prints its settings and results.
+
+    Args:
+        args (argparse.Namespace): Dataset path, output path, split ratios, and threshold objective.
+    """
+
     result = run_training(
         args.dataset,
         args.train_ratio,
@@ -41,6 +56,13 @@ def train(args):
 
 
 def evaluate(args):
+    """
+    Loads a saved model and prints its holdout results.
+
+    Args:
+        args (argparse.Namespace): Dataset path, model path, and split ratios.
+    """
+
     artifact = load_model(args.model_path)
     data = load_training_data(args.dataset)
     _, _, _, _, x_test, y_test = split_data(
@@ -53,6 +75,13 @@ def evaluate(args):
 
 
 def parse_args():
+    """
+    Reads the command and options from the command line.
+
+    Returns:
+        argparse.Namespace: Selected command, paths, and settings.
+    """
+
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description="Train and evaluate the football outcome model.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -79,6 +108,10 @@ def parse_args():
 
 
 def main():
+    """
+    Runs the requested dataset, training, or evaluation command.
+    """
+
     args = parse_args()
     if args.command == "build-dataset":
         build_dataset()

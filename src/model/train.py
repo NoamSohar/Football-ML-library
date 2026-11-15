@@ -10,7 +10,24 @@ def run_training(
     calibration_ratio=0.2,
     objective="macro_f1_recall",
 ):
-    """Loads data, trains with fixed settings, calibrates, and evaluates the model."""
+    """
+    Loads data, trains the model, finds the threshold, and evaluates results.
+
+    Model settings are fixed. The draw threshold is chosen only on calibration data.
+
+    Args:
+        dataset_path (str or Path): Path to the training CSV file.
+        train_ratio (float, optional): Share used for training. Defaults to 0.6.
+        calibration_ratio (float, optional): Share used for calibration. Defaults to 0.2.
+        objective (str, optional): Threshold scoring rule. Defaults to "macro_f1_recall".
+
+    Returns:
+        dict: Trained model, settings, threshold, test metrics, and data details.
+
+    Raises:
+        FileNotFoundError: If the training CSV file does not exist.
+        ValueError: If split ratios or threshold settings are invalid.
+    """
     data = load_training_data(dataset_path)
     x_train, y_train, x_calibration, y_calibration, x_test, y_test = split_data(
         data, train_ratio, calibration_ratio

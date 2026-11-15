@@ -28,6 +28,21 @@ FEATURE_COLUMNS = [
 
 class Predictor:
     def __init__(self, model, match_history: pd.DataFrame, draw_threshold=None, draw_weight=None):
+        """
+        Initializes the Predictor with a trained model and match history.
+
+        Copies the history, converts dates to UTC, and sorts matches by date.
+
+        Args:
+            model (XGBClassifier): Trained outcome model.
+            match_history (pd.DataFrame): Historical matches with team names, IDs, dates, and scores.
+            draw_threshold (float, optional): Saved draw cutoff. Defaults to None.
+            draw_weight (float, optional): Training weight stored for reference. Defaults to None.
+
+        Raises:
+            ValueError: If a team name belongs to more than one team ID.
+        """
+
         self.model = model
         self.draw_threshold = draw_threshold
         self.draw_weight = draw_weight
@@ -62,6 +77,20 @@ class Predictor:
 
     @classmethod
     def from_artifact(cls, artifact, match_history: pd.DataFrame):
+        """
+        Creates a Predictor from a saved model dictionary.
+
+        Args:
+            artifact (dict): Model and settings returned by load_model.
+            match_history (pd.DataFrame): Historical processed matches.
+
+        Returns:
+            Predictor: Predictor using the saved model and draw settings.
+
+        Raises:
+            ValueError: If a team name belongs to more than one team ID.
+        """
+
         return cls(
             artifact["model"],
             match_history,
@@ -70,6 +99,24 @@ class Predictor:
         )
 
     def predict(self, home_team, away_team, fixture_date, draw_threshold=None):
+        """
+        Predicts the result of a match.
+
+        Uses a cutoff of 0.25 if neither an override nor a saved threshold is available.
+
+        Args:
+            home_team (str): Name of the home team.
+            away_team (str): Name of the away team.
+            fixture_date (str or pd.Timestamp): Kickoff date. Dates without a timezone use UTC.
+            draw_threshold (float, optional): Overrides the saved cutoff. Defaults to None.
+
+        Returns:
+            str: "draw", "home_win", or "away_win".
+
+        Raises:
+            ValueError: If teams are unknown, identical, or have too little match history.
+        """
+
         features = self._create_features(home_team, away_team, fixture_date)
         probabilities = self.model.predict_proba(features)[0]
 
@@ -86,6 +133,21 @@ class Predictor:
         return "away_win"
 
     def predict_proba(self, home_team: str, away_team: str, fixture_date) -> dict[str, float]:
+        """
+        Returns the probabilities for each match outcome.
+
+        Args:
+            home_team (str): Name of the home team.
+            away_team (str): Name of the away team.
+            fixture_date (str or pd.Timestamp): Kickoff date. Dates without a timezone use UTC.
+
+        Returns:
+            dict: Probabilities named "draw", "home_win", and "away_win".
+
+        Raises:
+            ValueError: If teams are unknown, identical, or have too little match history.
+        """
+
         features = self._create_features(home_team, away_team, fixture_date)
         probabilities = self.model.predict_proba(features)[0]
 
@@ -96,6 +158,21 @@ class Predictor:
         }
 
     def _create_features(self, home_team: str, away_team: str, fixture_date) -> pd.DataFrame:
+        """
+        Creates one feature row using only matches before kickoff.
+
+        Args:
+            home_team (str): Name of the home team.
+            away_team (str): Name of the away team.
+            fixture_date (str or pd.Timestamp): Kickoff date. Dates without a timezone use UTC.
+
+        Returns:
+            pd.DataFrame: One row in the model's feature order.
+
+        Raises:
+            ValueError: If teams are unknown, identical, or have too little match history.
+        """
+
         if home_team == away_team:
             raise ValueError("Home and away teams must differ.")
 

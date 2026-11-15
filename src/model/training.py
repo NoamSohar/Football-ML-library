@@ -26,6 +26,22 @@ def train_model(
     model_params=None,
     draw_weight=DRAW_WEIGHT,
 ):
+    """
+    Trains an XGBoost model on the given match data.
+
+    Args:
+        x_train (pd.DataFrame): Features from the training period.
+        y_train (pd.Series): Training outcomes: 0 for draw, 1 for home win, 2 for away win.
+        model_params (dict, optional): XGBoost settings. Defaults to MODEL_PARAMS.
+        draw_weight (float, optional): Weight given to draw examples. Defaults to DRAW_WEIGHT.
+
+    Returns:
+        XGBClassifier: Trained model.
+
+    Raises:
+        ValueError: If draw_weight is not positive.
+    """
+
     if draw_weight <= 0:
         raise ValueError("draw_weight must be positive.")
 
