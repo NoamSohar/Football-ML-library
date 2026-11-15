@@ -12,7 +12,6 @@ def save_model(
     draw_weight=1.0,
     selection_metric="macro_f1",
     split_date_ranges=None,
-    dataset_fingerprint=None,
 ):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -25,7 +24,6 @@ def save_model(
         "draw_weight": draw_weight,
         "selection_metric": selection_metric,
         "split_date_ranges": split_date_ranges or {},
-        "dataset_fingerprint": dataset_fingerprint,
     }, path)
 
 
