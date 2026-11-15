@@ -3,10 +3,29 @@ from src import utils
 
 class GoalCalculator:
     def __init__(self, matches: pd.DataFrame, last_games: int=5):
+        """
+        Initializes the Goal Calculator.
+
+        Args:
+            matches (pd.DataFrame): Historical processed data, sorted by date.
+            last_games (int, optional): Number of recent matches to use. Defaults to 5.
+        """
+
         self.matches = matches
         self.last_games = last_games
 
     def get_team_goals(self, team_id: int, match_date: pd.Timestamp):
+        """
+        Calculates average goals scored and conceded in recent matches.
+
+        Args:
+            team_id (int): ID of the team.
+            match_date (pd.Timestamp): Only earlier matches are used.
+
+        Returns:
+            tuple or None: Average goals scored and conceded, in that order. Returns None if history is too short.
+        """
+
         previous_matches = self.matches[
             (self.matches["date"] < match_date)
             &
@@ -38,6 +57,17 @@ class GoalCalculator:
         return  goals_scored / self.last_games, goals_scored_against_team / self.last_games
 
     def get_season_average_goals(self, team_id: int, match_date: pd.Timestamp):
+        """
+        Calculates average goals scored in the current season.
+
+        Args:
+            team_id (int): ID of the team.
+            match_date (pd.Timestamp): Only earlier matches in the season are used.
+
+        Returns:
+            float or None: Average goals scored per match, or None if no matches are available.
+        """
+
         previous_matches = self.matches[
             (self.matches["date"] < match_date)
             &
@@ -68,6 +98,15 @@ class GoalCalculator:
 
 
     def add_features(self) -> pd.DataFrame:
+        """
+        Adds pre-match goal features for both teams.
+
+        Only matches before each kickoff are used. Missing history gives empty feature values.
+
+        Returns:
+            pd.DataFrame: A copy of the match data with the added features.
+        """
+
         df = self.matches.copy()
 
         home_goals_scored = []

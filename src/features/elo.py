@@ -1,23 +1,68 @@
 import pandas as pd
 
 class EloCalculator:
-    def __init__(self, matches: pd.DataFrame, starting_elo: float=1500, k: int=20):
-        self.starting_elo = starting_elo
-        self.k = k
-        self.ratings = {}
+    def __init__(self,
+        matches: pd.DataFrame,
+        starting_elo: float = 1500.0,
+        k_factor: float = 20.0
+    ):
+        """
+        Initializes the Elo Calculator.
+
+        Args:
+            matches (pd.DataFrame): Historical processed data. (containing dates, team IDs and final scores)
+            starting_elo (float, optional): Rating assigned to a team before its first known match.
+            k_factor (float): Power of each rating update.
+        """
+
         self.matches = matches
+        self.starting_elo = starting_elo
+        self.k_factor = k_factor
+
+        self.ratings = {}
 
     def get_elo(self, team_id: int) -> float:
+        """
+        Returns the team's current Elo rating.
+
+        Args:
+            team_id (int): ID of the team.
+
+        Returns:
+            float: Current rating. Unknown teams are assigned the starting rating.
+        """
+
         if team_id not in self.ratings:
             self.ratings[team_id] = self.starting_elo
 
         return self.ratings[team_id]
 
-    def calculate_chance(self, rating_a: float, rating_b: float) -> float:
-        return 1 / (1 + 10 ** ((rating_b - rating_a) / 400)
-        )
+    @staticmethod
+    def calculate_chance(rating_a: float, rating_b: float) -> float:
+        """
+        Calculates the expected Elo score between two ratings.
+
+        Args:
+            rating_a (float): Rating of the first team.
+            rating_b (float): Rating of the second team.
+
+        Returns:
+            float: Expected score for the first team, between 0 and 1.
+        """
+
+        return 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
 
     def update_ratings(self, home_team_id: int, away_team_id: int, home_goals: int, away_goals: int) -> None:
+
+        """
+        Updates both teams' Elo ratings after a finished match.
+
+        Args:
+            home_team_id (int): ID of the home team.
+            away_team_id (int): ID of the away team.
+            home_goals (int): Goals scored by the home team.
+            away_goals (int): Goals scored by the away team.
+        """
 
         home_rating = self.get_elo(home_team_id)
         away_rating = self.get_elo(away_team_id)
@@ -39,17 +84,27 @@ class EloCalculator:
 
         self.ratings[home_team_id] = (
                 home_rating
-                + self.k
+                + self.k_factor
                 * (home_score - home_chance)
         )
 
         self.ratings[away_team_id] = (
                 away_rating
-                + self.k
+                + self.k_factor
                 * (away_score - away_chance)
         )
 
     def add_features(self) -> pd.DataFrame:
+        """
+        Adds the home Elo, away Elo, and rating difference before each match.
+
+        Matches with the same kickoff use ratings from before any of those matches.
+        The calculator keeps the updated ratings after processing the matches.
+
+        Returns:
+            pd.DataFrame: A chronologically sorted copy with the Elo features.
+        """
+
         df = self.matches.copy()
         df = df.sort_values("date").reset_index(drop=True)
 
