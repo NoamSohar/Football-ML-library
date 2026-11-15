@@ -3,10 +3,29 @@ from src import utils
 
 class FormCalculator:
     def __init__(self, matches: pd.DataFrame, last_games: int = 5):
+        """
+        Initializes the Form Calculator.
+
+        Args:
+            matches (pd.DataFrame): Historical processed data, sorted by date.
+            last_games (int, optional): Number of recent matches to use. Defaults to 5.
+        """
+
         self.matches = matches
         self.last_games = last_games
 
     def get_team_form(self, team_id: int, match_date):
+        """
+        Calculates average points from the team's recent matches.
+
+        Args:
+            team_id (int): ID of the team.
+            match_date (pd.Timestamp): Date of the match being predicted.
+
+        Returns:
+            float or None: Average points per match, or None if there are not enough previous matches.
+        """
+
         previous_matches = self.matches[
             (self.matches["date"] < match_date)
             &
@@ -38,6 +57,21 @@ class FormCalculator:
         return points / self.last_games
 
     def get_location_specific_form(self, team_id: int, match_date, location: str):
+        """
+        Calculates recent form for home or away matches.
+
+        Args:
+            team_id (int): ID of the team.
+            match_date (pd.Timestamp): Only earlier matches are used.
+            location (str): Match location, either "home" or "away".
+
+        Returns:
+            float or None: Average points per match, or None if there are not enough matches.
+
+        Raises:
+            ValueError: If location is not "home" or "away".
+        """
+
         if location not in ("home", "away"):
             raise ValueError("location must be 'home' or 'away'")
 
@@ -65,6 +99,17 @@ class FormCalculator:
         return points / self.last_games
 
     def get_seasonal_ppg(self, team_id: int, match_date: pd.Timestamp):
+        """
+        Calculates the team's average points in the current season.
+
+        Args:
+            team_id (int): ID of the team.
+            match_date (pd.Timestamp): Only earlier matches in the season are used.
+
+        Returns:
+            float or None: Average points rounded to two decimals, or None if no matches are available.
+        """
+
         previous_matches = self.matches[
             (self.matches["date"] < match_date)
             &
@@ -96,6 +141,15 @@ class FormCalculator:
         return round((points / len(previous_matches)), 2)
 
     def add_features(self) -> pd.DataFrame:
+        """
+        Adds pre-match form features for both teams.
+
+        Only matches before each kickoff are used. Missing history gives empty feature values.
+
+        Returns:
+            pd.DataFrame: A copy of the match data with the added features.
+        """
+
         df = self.matches.copy()
 
         home_forms = []
